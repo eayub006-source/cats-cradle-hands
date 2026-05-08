@@ -193,6 +193,7 @@
       },
       particles: [],
       strings: [],
+      contactHits: new Map(),
       videoReady: false,
       hasHands: false,
       cameraError: ''
@@ -355,11 +356,22 @@
         const rightTip = screenPoint(right.points[id]);
         const d = distance(leftTip, rightTip);
         const threshold = Math.max(26, Math.min(state.width, state.height) * 0.06);
+        const key = `tip-${id}`;
+        const lastHit = state.contactHits.get(key) || 0;
+        const now = performance.now();
+
         if (d < threshold) {
+          if (now - lastHit < 180) {
+            return;
+          }
+
           const mixX = (leftTip.x + rightTip.x) * 0.5;
           const mixY = (leftTip.y + rightTip.y) * 0.5;
           const intensity = 1 - d / threshold;
           spawnBurst(mixX, mixY, intensity, GLOW_COLORS[id % GLOW_COLORS.length]);
+          state.contactHits.set(key, now);
+        } else if (now - lastHit > 400) {
+          state.contactHits.delete(key);
         }
       });
     }
@@ -539,6 +551,10 @@
 
     async function startCamera() {
       try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('This browser does not support camera access.');
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: false,
           video: {
@@ -558,6 +574,12 @@
     }
 
     function configureHands() {
+      if (typeof Hands === 'undefined' || typeof Camera === 'undefined') {
+        state.cameraError = 'MediaPipe scripts failed to load.';
+        updateStatus(`Camera unavailable: ${state.cameraError}`);
+        return;
+      }
+
       const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
       hands.setOptions({
         maxNumHands: 2,
@@ -604,8 +626,10 @@
         state.height = p.height;
 
         startCamera().then(() => {
-          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          if (state.videoReady) {
             configureHands();
+          } else {
+            updateStatus(`Camera unavailable: ${state.cameraError || 'permission denied or unsupported browser.'}`);
           }
         });
       };

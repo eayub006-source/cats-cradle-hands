@@ -29,7 +29,15 @@ Then open the shown address from the device you want to use, for example:
 - `http://localhost:8000/` on the same machine.
 - `http://<your-local-ip>:8000/` from another device on the same Wi-Fi network.
 
-If your browser blocks camera access over a local network address, use localhost on the same machine or serve the folder over HTTPS.
+If your browser blocks camera access over a local network address, use localhost on the same machine or serve the folder over HTTPS. Camera permission is only reliable on `localhost` or a secure origin.
+
+## Sharing with other people
+
+The app is published here:
+
+- https://github.com/eayub006-source/cats-cradle-hands
+
+If someone wants to run it locally, they should clone the repo, run `start-local.ps1`, and open the printed URL. If they want webcam access from a phone or another device on the network, they may need to use a secure HTTPS host because browsers block camera access on plain HTTP network addresses.
 
 ## Files
 
