@@ -31,6 +31,20 @@ Then open the shown address from the device you want to use, for example:
 
 If your browser blocks camera access over a local network address, use localhost on the same machine or serve the folder over HTTPS. Camera permission is only reliable on `localhost` or a secure origin.
 
+## HTTPS launch option
+
+Run this when you want a secure local origin for camera access:
+
+```powershell
+.\start-https.ps1
+```
+
+Then open:
+
+- `https://localhost:8443/`
+
+This uses a self-signed development certificate created locally on first run. Browsers may show a trust warning the first time; accept it for local development. For sharing with other devices, HTTPS works best when the certificate is trusted on those devices too.
+
 ## Sharing with other people
 
 The app is published here:
@@ -44,3 +58,5 @@ If someone wants to run it locally, they should clone the repo, run `start-local
 - `index.html` - the complete single-file app.
 - `README.md` - project summary and usage notes.
 - `start-local.ps1` - local web server helper for easy browser testing.
+- `start-https.ps1` - HTTPS launcher for secure local camera access.
+- `serve-https.py` - tiny HTTPS static file server used by the launcher.
